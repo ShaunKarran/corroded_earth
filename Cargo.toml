@@ -1,0 +1,16 @@
+[package]
+name = "correded-earth"
+version = "0.1.0"
+authors = ["Shaun Karran <shaun.karran@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+amethyst = "0.12.0"
+log = { version = "0.4.6", features = ["serde"] }
+
+[features]
+default = ["metal"]
+empty = ["amethyst/empty"]
+metal = ["amethyst/metal"]
+vulkan = ["amethyst/vulkan"]
+nightly = ["amethyst/nightly"]
