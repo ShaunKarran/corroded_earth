@@ -4,7 +4,6 @@ use amethyst::{
         components::Parent,
         Transform,
     },
-    ecs::prelude::{Component, DenseVecStorage},
     input::{get_key, is_close_requested, is_key_down, VirtualKeyCode},
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
@@ -28,27 +27,12 @@ pub struct GameState {
 }
 
 impl SimpleState for GameState {
-    // On start will run when this state is initialized. For more
-    // state lifecycle hooks, see:
-    // https://book.amethyst.rs/stable/concepts/state.html#life-cycle
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world = data.world;
 
-        // This is needed while we have no Systems using the Tank Component.
-        world.register::<Tank>();
-
-        // // Get the screen dimensions so we can initialize the camera and
-        // // place our sprites correctly later. We'll clone this since we'll
-        // // pass the world mutably to the following functions.
-        // let dimensions = world.read_resource::<ScreenDimensions>().clone();
-
-        // Place the camera
         init_camera(world);
 
-        // Load our sprites and display them
-        // let sprites = load_sprites(world);
         let sheet_handle = load_sprites(world);
-        // init_sprites(world, &sprites, &dimensions);
         init_tank(world, sheet_handle.clone());
     }
 
@@ -78,13 +62,6 @@ impl SimpleState for GameState {
     }
 }
 
-/// Not used atm, might hold something later like gun damage?
-pub struct Tank;
-
-impl Component for Tank {
-    type Storage = DenseVecStorage<Self>;
-}
-
 fn init_camera(world: &mut World) {
     // Center the camera in the middle of the screen, and let it cover the entire screen.
     let mut transform = Transform::default();
@@ -98,9 +75,8 @@ fn init_camera(world: &mut World) {
 }
 
 fn load_sprites(world: &mut World) -> Handle<SpriteSheet> {
-    // Load the texture for our sprites. We'll later need to
-    // add a handle to this texture to our `SpriteRender`s, so
-    // we need to keep a reference to it.
+    // Load the texture for our sprites.
+    // We'll later need to add a handle to this texture to our `SpriteRender`s, so we need to keep a reference to it.
     let texture_handle = {
         let loader = world.read_resource::<Loader>();
         let texture_storage = world.read_resource::<AssetStorage<Texture>>();
@@ -113,18 +89,14 @@ fn load_sprites(world: &mut World) -> Handle<SpriteSheet> {
     };
 
     // Load the sprite sheet definition file, which contains metadata on our sprite sheet texture.
-    let sheet_handle = {
-        let loader = world.read_resource::<Loader>();
-        let sheet_storage = world.read_resource::<AssetStorage<SpriteSheet>>();
-        loader.load(
-            "sprites/tank.ron",
-            SpriteSheetFormat(texture_handle),
-            (),
-            &sheet_storage,
-        )
-    };
-
-    sheet_handle
+    let loader = world.read_resource::<Loader>();
+    let sheet_storage = world.read_resource::<AssetStorage<SpriteSheet>>();
+    loader.load(
+        "sprites/tank.ron",
+        SpriteSheetFormat(texture_handle),
+        (),
+        &sheet_storage,
+    )
 }
 
 fn init_tank(world: &mut World, sheet_handle: Handle<SpriteSheet>) {
@@ -142,13 +114,13 @@ fn init_tank(world: &mut World, sheet_handle: Handle<SpriteSheet>) {
     let tank_entity = world
         .create_entity()
         .with(sprite_render.clone())
-        .with(Tank)
         .with(transform)
         .build();
     
-    // Rotate the gun by 45 degrees by default.
+    // The tank gun will have the tank as a parent which means the tank gun's transform is relative to the tank.
+    // This means we need a new transform.
     let mut gun_transform = Transform::default();
-    gun_transform.set_rotation_2d(45.0);
+    gun_transform.set_rotation_2d(45.0); // Rotate the gun by 45 degrees by default.
 
     // Assign the sprite for the tank gun.
     let gun_sprite_render = SpriteRender {
@@ -160,7 +132,7 @@ fn init_tank(world: &mut World, sheet_handle: Handle<SpriteSheet>) {
     world
         .create_entity()
         .with(gun_sprite_render.clone())
-        .with(Parent { entity: tank_entity })
+        .with(Parent { entity: tank_entity }) // Assign the tank as the guns parent so it will inherit transformations.
         .with(gun_transform)
         .build();
 }
