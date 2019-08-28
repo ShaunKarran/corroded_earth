@@ -1,6 +1,9 @@
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
-    core::transform::Transform,
+    core::transform::{
+        components::Parent,
+        Transform,
+    },
     ecs::prelude::{Component, DenseVecStorage},
     input::{get_key, is_close_requested, is_key_down, VirtualKeyCode},
     prelude::*,
@@ -75,15 +78,8 @@ impl SimpleState for GameState {
     }
 }
 
-pub struct Tank {
-    gun_angle: f32,
-}
-
-impl Tank {
-    fn new(gun_angle: f32) -> Tank {
-        Tank { gun_angle }
-    }
-}
+/// Not used atm, might hold something later like gun damage?
+pub struct Tank;
 
 impl Component for Tank {
     type Storage = DenseVecStorage<Self>;
@@ -101,7 +97,6 @@ fn init_camera(world: &mut World) {
         .build();
 }
 
-// fn load_sprites(world: &mut World) -> Vec<SpriteRender> {
 fn load_sprites(world: &mut World) -> Handle<SpriteSheet> {
     // Load the texture for our sprites. We'll later need to
     // add a handle to this texture to our `SpriteRender`s, so
@@ -133,22 +128,39 @@ fn load_sprites(world: &mut World) -> Handle<SpriteSheet> {
 }
 
 fn init_tank(world: &mut World, sheet_handle: Handle<SpriteSheet>) {
-    let mut transform = Transform::default();
-
     // Position the tank in a fixed location for now. 10 units left of centre.
+    let mut transform = Transform::default();
     transform.set_translation_xyz(GAME_WIDTH / 2.0 - 10.0, GROUND_HEIGHT + TANK_HEIGHT / 2.0, 0.0);
 
     // Assign the sprite for the tank.
     let sprite_render = SpriteRender {
-        sprite_sheet: sheet_handle,
-        sprite_number: 0, // tank is the first (currently only) sprite in the sprite_sheet.
+        sprite_sheet: sheet_handle.clone(),
+        sprite_number: 0, // tank is the first sprite in the sprite_sheet.
     };
 
     // Create a tank entity.
-    world
+    let tank_entity = world
         .create_entity()
         .with(sprite_render.clone())
-        .with(Tank::new(45.0)) // Gun angle starts at 45 degrees.
+        .with(Tank)
         .with(transform)
+        .build();
+    
+    // Rotate the gun by 45 degrees by default.
+    let mut gun_transform = Transform::default();
+    gun_transform.set_rotation_2d(45.0);
+
+    // Assign the sprite for the tank gun.
+    let gun_sprite_render = SpriteRender {
+        sprite_sheet: sheet_handle.clone(),
+        sprite_number: 1, // tank gun is the second sprite in the sprite_sheet.
+    };
+
+    // Create a tank gun entity.
+    world
+        .create_entity()
+        .with(gun_sprite_render.clone())
+        .with(Parent { entity: tank_entity })
+        .with(gun_transform)
         .build();
 }
