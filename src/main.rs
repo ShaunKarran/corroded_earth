@@ -1,5 +1,6 @@
 use amethyst::{
     core::transform::TransformBundle,
+    input::{InputBundle, StringBindings},
     prelude::*,
     renderer::{
         plugins::{RenderFlat2D, RenderToWindow},
@@ -10,6 +11,7 @@ use amethyst::{
 };
 
 mod game_state;
+mod systems;
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
@@ -19,8 +21,16 @@ fn main() -> amethyst::Result<()> {
     let resources = app_root.join("resources");
     let display_config = resources.join("display_config.ron");
 
+    let configs = app_root.join("configs");
+    let bindings = configs.join("bindings.ron");
+
+    let input_bundle = InputBundle::<StringBindings>::new()
+        .with_bindings_from_file(bindings)?;
+
     let game_data = GameDataBuilder::default()
         .with_bundle(TransformBundle::new())?
+        .with_bundle(input_bundle)?
+        .with(systems::AimSystem, "aim_system", &["input_system"]) // Add this line
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
                 .with_plugin(

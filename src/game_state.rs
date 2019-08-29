@@ -1,9 +1,7 @@
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
-    core::transform::{
-        components::Parent,
-        Transform,
-    },
+    core::transform::{components::Parent, Transform},
+    ecs::prelude::{Component, DenseVecStorage},
     input::{get_key, is_close_requested, is_key_down, VirtualKeyCode},
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
@@ -29,6 +27,8 @@ pub struct GameState {
 impl SimpleState for GameState {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world = data.world;
+
+        world.register::<TankGun>();
 
         init_camera(world);
 
@@ -60,6 +60,13 @@ impl SimpleState for GameState {
         // Keep going
         Trans::None
     }
+}
+
+/// Right now just used to be able to write a System that operates on the tank gun entity.
+pub struct TankGun;
+
+impl Component for TankGun {
+    type Storage = DenseVecStorage<Self>;
 }
 
 fn init_camera(world: &mut World) {
@@ -131,6 +138,7 @@ fn init_tank(world: &mut World, sheet_handle: Handle<SpriteSheet>) {
     // Create a tank gun entity.
     world
         .create_entity()
+        .with(TankGun)
         .with(gun_sprite_render.clone())
         .with(Parent { entity: tank_entity }) // Assign the tank as the guns parent so it will inherit transformations.
         .with(gun_transform)
