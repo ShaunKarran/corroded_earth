@@ -29,10 +29,13 @@ impl SimpleState for GameState {
         let world = data.world;
 
         world.register::<TankGun>();
+        world.register::<TankBullet>();
 
         init_camera(world);
 
         let sheet_handle = load_sprites(world);
+        world.insert(sheet_handle.clone());
+
         init_tank(world, sheet_handle.clone());
     }
 
@@ -66,6 +69,13 @@ impl SimpleState for GameState {
 pub struct TankGun;
 
 impl Component for TankGun {
+    type Storage = DenseVecStorage<Self>;
+}
+
+/// Right now just used to be able to write a System that operates on the tank gun entity.
+pub struct TankBullet;
+
+impl Component for TankBullet {
     type Storage = DenseVecStorage<Self>;
 }
 
@@ -109,7 +119,11 @@ fn load_sprites(world: &mut World) -> Handle<SpriteSheet> {
 fn init_tank(world: &mut World, sheet_handle: Handle<SpriteSheet>) {
     // Position the tank in a fixed location for now. 10 units left of centre.
     let mut transform = Transform::default();
-    transform.set_translation_xyz(GAME_WIDTH / 2.0 - 10.0, GROUND_HEIGHT + TANK_HEIGHT / 2.0, 0.0);
+    transform.set_translation_xyz(
+        GAME_WIDTH / 2.0 - 10.0,
+        GROUND_HEIGHT + TANK_HEIGHT / 2.0,
+        0.0,
+    );
 
     // Assign the sprite for the tank.
     let sprite_render = SpriteRender {
@@ -123,7 +137,7 @@ fn init_tank(world: &mut World, sheet_handle: Handle<SpriteSheet>) {
         .with(sprite_render.clone())
         .with(transform)
         .build();
-    
+
     // The tank gun will have the tank as a parent which means the tank gun's transform is relative to the tank.
     // This means we need a new transform.
     let mut gun_transform = Transform::default();
@@ -140,7 +154,9 @@ fn init_tank(world: &mut World, sheet_handle: Handle<SpriteSheet>) {
         .create_entity()
         .with(TankGun)
         .with(gun_sprite_render.clone())
-        .with(Parent { entity: tank_entity }) // Assign the tank as the guns parent so it will inherit transformations.
+        .with(Parent {
+            entity: tank_entity,
+        }) // Assign the tank as the guns parent so it will inherit transformations.
         .with(gun_transform)
         .build();
 }

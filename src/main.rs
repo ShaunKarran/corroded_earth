@@ -24,8 +24,7 @@ fn main() -> amethyst::Result<()> {
     let configs = app_root.join("configs");
     let bindings = configs.join("bindings.ron");
 
-    let input_bundle = InputBundle::<StringBindings>::new()
-        .with_bindings_from_file(bindings)?;
+    let input_bundle = InputBundle::<StringBindings>::new().with_bindings_from_file(bindings)?;
 
     let game_data = GameDataBuilder::default()
         .with_bundle(TransformBundle::new())?

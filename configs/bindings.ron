@@ -2,5 +2,7 @@
   axes: {
     "gun_angle": Emulated(pos: Key(W), neg: Key(S)),
   },
-  actions: {},
+  actions: {
+    "shoot": [[Key(Space)]],
+  },
 )
