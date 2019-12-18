@@ -5,8 +5,9 @@ authors = ["Shaun Karran <shaun.karran@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-amethyst = "0.12.0"
+amethyst = "0.13.2"
 log = { version = "0.4.6", features = ["serde"] }
+objc = "0.2.6" # Temporary fix for metal 0.15 error.
 
 [features]
 default = ["metal"]
