@@ -29,7 +29,8 @@ fn main() -> amethyst::Result<()> {
     let game_data = GameDataBuilder::default()
         .with_bundle(TransformBundle::new())?
         .with_bundle(input_bundle)?
-        .with(systems::AimSystem, "aim_system", &["input_system"]) // Add this line
+        .with(systems::AimSystem, "aim_system", &["input_system"])
+        .with(systems::BulletSystem, "bullet_system", &[])
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
                 .with_plugin(

@@ -79,7 +79,7 @@ impl<'s> System<'s> for AimSystem {
                 .build_entity()
                 .with(bullet_sprite_render.clone(), &mut sprite_renders)
                 .with(bullet_transform, &mut transforms)
-                .with(TankBullet, &mut tank_bullets)
+                .with(TankBullet { velocity: [1.0, 1.0] }, &mut tank_bullets)
                 .build();
         }
     }

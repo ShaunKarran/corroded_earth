@@ -72,8 +72,9 @@ impl Component for TankGun {
     type Storage = DenseVecStorage<Self>;
 }
 
-/// Right now just used to be able to write a System that operates on the tank gun entity.
-pub struct TankBullet;
+pub struct TankBullet {
+    pub velocity: [f32; 2],
+}
 
 impl Component for TankBullet {
     type Storage = DenseVecStorage<Self>;
