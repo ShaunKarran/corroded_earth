@@ -1,8 +1,5 @@
 use amethyst::{
-    core::{
-        timing::Time,
-        Transform,
-    },
+    core::{timing::Time, Transform},
     ecs::{Join, Read, ReadStorage, System, WriteStorage},
 };
 

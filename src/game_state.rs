@@ -65,7 +65,22 @@ impl SimpleState for GameState {
     }
 }
 
-/// Right now just used to be able to write a System that operates on the tank gun entity.
+pub struct Player {
+    pub id: u8,
+}
+
+impl Component for Player {
+    type Storage = DenseVecStorage<Self>;
+}
+
+pub struct Tank {
+    pub gun_angle: f32,
+}
+
+impl Component for Tank {
+    type Storage = DenseVecStorage<Self>;
+}
+
 pub struct TankGun;
 
 impl Component for TankGun {
@@ -119,30 +134,33 @@ fn load_sprites(world: &mut World) -> Handle<SpriteSheet> {
 
 fn init_tank(world: &mut World, sheet_handle: Handle<SpriteSheet>) {
     // Position the tank in a fixed location for now. 10 units left of centre.
-    let mut transform = Transform::default();
-    transform.set_translation_xyz(
+    let mut tank_transform = Transform::default();
+    tank_transform.set_translation_xyz(
         GAME_WIDTH / 2.0 - 10.0,
         GROUND_HEIGHT + TANK_HEIGHT / 2.0,
         0.0,
     );
 
     // Assign the sprite for the tank.
-    let sprite_render = SpriteRender {
+    let tank_sprite_render = SpriteRender {
         sprite_sheet: sheet_handle.clone(),
         sprite_number: 0, // tank is the first sprite in the sprite_sheet.
     };
 
     // Create a tank entity.
+    let gun_angle = 45.0; // Rotate the gun by 45 degrees by default.
     let tank_entity = world
         .create_entity()
-        .with(sprite_render.clone())
-        .with(transform)
+        .with(Player { id: 0 })
+        .with(Tank { gun_angle })
+        .with(tank_sprite_render.clone())
+        .with(tank_transform)
         .build();
 
     // The tank gun will have the tank as a parent which means the tank gun's transform is relative to the tank.
     // This means we need a new transform.
     let mut gun_transform = Transform::default();
-    gun_transform.set_rotation_2d((45.0 as f32).to_radians()); // Rotate the gun by 45 degrees by default.
+    gun_transform.set_rotation_2d(gun_angle.to_radians());
 
     // Assign the sprite for the tank gun.
     let gun_sprite_render = SpriteRender {
