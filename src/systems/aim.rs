@@ -1,7 +1,7 @@
 use amethyst::{
     assets::Handle,
     core::{transform::components::Parent, Transform},
-    ecs::{Entities, Join, Read, ReadExpect, ReadStorage, System, WriteStorage},
+    ecs::{Builder, Entities, Join, LazyUpdate, Read, ReadExpect, ReadStorage, System, WriteStorage},
     input::{InputHandler, StringBindings},
     renderer::{SpriteRender, SpriteSheet},
 };
@@ -19,9 +19,8 @@ impl<'s> System<'s> for AimSystem {
         WriteStorage<'s, Tank>,
         WriteStorage<'s, Transform>,
         Entities<'s>,
+        Read<'s, LazyUpdate>,
         ReadExpect<'s, Handle<SpriteSheet>>,
-        WriteStorage<'s, SpriteRender>,
-        WriteStorage<'s, TankBullet>,
     );
 
     fn run(
@@ -34,9 +33,8 @@ impl<'s> System<'s> for AimSystem {
             mut tanks,
             mut transforms,
             entities,
+            lazy_update,
             sheet_handle,
-            mut sprite_renders,
-            mut tank_bullets,
         ): Self::SystemData,
     ) {
         // Update the gun angle for any tanks that have a Player component.
@@ -74,15 +72,14 @@ impl<'s> System<'s> for AimSystem {
             };
 
             // Create the bullet.
-            entities
-                .build_entity()
-                .with(bullet_sprite_render.clone(), &mut sprite_renders)
-                .with(bullet_transform, &mut transforms)
+            lazy_update
+                .create_entity(&entities)
+                .with(bullet_sprite_render.clone())
+                .with(bullet_transform)
                 .with(
                     TankBullet {
-                        velocity: [10.0, 10.0],
-                    },
-                    &mut tank_bullets,
+                        velocity: [gun_x_component * 10.0, gun_y_component * 10.0],
+                    }
                 )
                 .build();
         }
