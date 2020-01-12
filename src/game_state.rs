@@ -74,6 +74,7 @@ impl Component for Player {
 }
 
 pub struct Tank {
+    // Angle from horizontal of the tanks gun in radians.
     pub gun_angle: f32,
 }
 
@@ -148,7 +149,7 @@ fn init_tank(world: &mut World, sheet_handle: Handle<SpriteSheet>) {
     };
 
     // Create a tank entity.
-    let gun_angle = 45.0; // Rotate the gun by 45 degrees by default.
+    let gun_angle = (45.0 as f32).to_radians(); // Rotate the gun by 45 degrees by default.
     let tank_entity = world
         .create_entity()
         .with(Player { id: 0 })
@@ -160,7 +161,7 @@ fn init_tank(world: &mut World, sheet_handle: Handle<SpriteSheet>) {
     // The tank gun will have the tank as a parent which means the tank gun's transform is relative to the tank.
     // This means we need a new transform.
     let mut gun_transform = Transform::default();
-    gun_transform.set_rotation_2d(gun_angle.to_radians());
+    gun_transform.set_rotation_2d(gun_angle);
 
     // Assign the sprite for the tank gun.
     let gun_sprite_render = SpriteRender {

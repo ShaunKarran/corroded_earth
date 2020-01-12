@@ -8,6 +8,8 @@ use amethyst::{
 
 use crate::game_state::{Player, Tank, TankBullet, TankGun};
 
+const AIM_SCALER: f32 = 0.02;
+
 pub struct AimSystem;
 
 impl<'s> System<'s> for AimSystem {
@@ -44,7 +46,9 @@ impl<'s> System<'s> for AimSystem {
             if let Some(angle_delta) = input.axis_value("gun_angle") {
                 if angle_delta != 0.0 {
                     // Keep the gun angle between 0 and 90 degrees.
-                    tank.gun_angle = (tank.gun_angle + angle_delta).min(90.0).max(0.0);
+                    tank.gun_angle = (tank.gun_angle + angle_delta * AIM_SCALER)
+                        .min((90.0 as f32).to_radians())
+                        .max((0.0 as f32).to_radians());
                 }
             }
         }
@@ -55,14 +59,26 @@ impl<'s> System<'s> for AimSystem {
                 .get(parent.entity)
                 .expect("TankGun did not have parent Tank");
 
-            transform.set_rotation_2d(parent_tank.gun_angle.to_radians());
+            transform.set_rotation_2d(parent_tank.gun_angle);
         }
 
         if input.action_is_down("shoot").unwrap_or(false) {
+            // Store the x and y components of the guns current position so we can use them to
+            // calculate the bullets starting position and velocity based on gun angle.
+            // Default values don't really make sense, but the logic doesn't guarantee
+            // they will be assigned. Should probably fix this.
+            let gun_x_component: f32 = 5.0;
+            let gun_y_component: f32 = 5.0;
             let mut bullet_transform = Transform::default();
 
-            for (_, _, transform) in (&players, &mut tanks, &mut transforms).join() {
+            for (_, tank, transform) in (&players, &mut tanks, &mut transforms).join() {
                 bullet_transform = transform.clone();
+
+                // Make the bullets initial position match the end of the gun barrel.
+                let gun_x_component = 5.0 * tank.gun_angle.cos();
+                let gun_y_component = 5.0 * tank.gun_angle.sin();
+                bullet_transform.prepend_translation_x(gun_x_component);
+                bullet_transform.prepend_translation_y(gun_y_component);
             }
 
             //Assign the sprite for the tank gun.
