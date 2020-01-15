@@ -9,6 +9,9 @@ use amethyst::{
 
 use log::info;
 
+use crate::{CurrentState, Game};
+use super::AITurnState;
+
 // The height and width of the play space of the game.
 // Set to match the resolution of a Nokia 5110 display. Conveniently this very close to a 16:9 ratio.
 pub const GAME_HEIGHT: f32 = 48.0;
@@ -35,6 +38,13 @@ impl SimpleState for PlayerTurnState {
         world.insert(sheet_handle.clone());
 
         init_tank(world, sheet_handle.clone());
+
+        world.insert(Game { current_state: CurrentState::PlayerTurn });
+    }
+
+    fn on_resume(&mut self, data: StateData<'_, GameData<'_, '_>>) {
+        // mark that the current state is a gameplay state.
+        data.world.write_resource::<Game>().current_state = CurrentState::PlayerTurn;
     }
 
     fn handle_event(
@@ -49,7 +59,11 @@ impl SimpleState for PlayerTurnState {
             }
 
             // Listen to any key events
-            if let Some(event) = get_key(&event) {
+            if is_key_down(&event, VirtualKeyCode::Space) {
+                info!("pushing AITurnState state");
+                return Trans::Push(Box::new(AITurnState));
+            }
+            else if let Some(event) = get_key(&event) {
                 info!("handling key event: {:?}", event);
             }
 

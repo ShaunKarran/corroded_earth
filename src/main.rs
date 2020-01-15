@@ -13,7 +13,22 @@ use amethyst::{
 mod states;
 mod systems;
 
-use states::{AITurnState, PlayerTurnState};
+use states::PlayerTurnState;
+
+#[derive(Default)]
+pub struct Game {
+    current_state: CurrentState,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum CurrentState {
+    PlayerTurn,
+    AITurn,
+}
+
+impl Default for CurrentState {
+    fn default() -> Self { CurrentState::PlayerTurn }
+}
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());

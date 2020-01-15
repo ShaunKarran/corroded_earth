@@ -6,6 +6,16 @@ Main Menu (Not yet) -> PlayerTurn -> AITurn(s)
                             ^           |
                             |-----------|
 
+## Systems based on state
+I expected something to be able to activate/deactivate systems based on the current state. That doesn't seem to be the case.
+Instead the docs (book -> Concepts -> System) shows an example of storing some data (a struct) as a resource in the game which contains an enum of the current state. Then in the systems you can switch on the current state to control the systems behaviour based on state.
+https://book.amethyst.rs/stable/concepts/system.html#changing-states-through-resources
+
+After making initial changes to switch states the result is that the state changes to AITurn before the system actually fires the bullet.
+I think the solution might be handling the fire bullet input in the PlayerTurnState.handle_event method. I could record some 'PlayerAction' in the Game and then fire the bullet.
+I could also have a state for while the bullet is in flight?
+Maybe both.
+
 # Plan for handling Tanks.
 
 - Have a Tank component.
