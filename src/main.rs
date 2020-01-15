@@ -10,8 +10,10 @@ use amethyst::{
     utils::application_root_dir,
 };
 
-mod game_state;
+mod states;
 mod systems;
+
+use states::{AITurnState, PlayerTurnState};
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
@@ -40,13 +42,7 @@ fn main() -> amethyst::Result<()> {
                 .with_plugin(RenderFlat2D::default()),
         )?;
 
-    let mut game = Application::new(
-        resources,
-        game_state::GameState {
-            number_of_enemies: 0,
-        },
-        game_data,
-    )?;
+    let mut game = Application::new(resources, PlayerTurnState, game_data)?;
     game.run();
 
     Ok(())

@@ -20,11 +20,9 @@ pub const GROUND_HEIGHT: f32 = 5.0;
 pub const TANK_HEIGHT: f32 = 5.0;
 // pub const TANK_WIDTH: f32 = 5.0; // Unused for now, might be useful later.
 
-pub struct GameState {
-    pub number_of_enemies: u8,
-}
+pub struct PlayerTurnState;
 
-impl SimpleState for GameState {
+impl SimpleState for PlayerTurnState {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world = data.world;
 

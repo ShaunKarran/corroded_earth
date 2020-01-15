@@ -1,12 +1,14 @@
 use amethyst::{
     assets::Handle,
     core::{transform::components::Parent, Transform},
-    ecs::{Builder, Entities, Join, LazyUpdate, Read, ReadExpect, ReadStorage, System, WriteStorage},
+    ecs::{
+        Builder, Entities, Join, LazyUpdate, Read, ReadExpect, ReadStorage, System, WriteStorage,
+    },
     input::{InputHandler, StringBindings},
     renderer::{SpriteRender, SpriteSheet},
 };
 
-use crate::game_state::{Player, Tank, TankBullet, TankGun};
+use crate::states::player_turn::{Player, Tank, TankBullet, TankGun};
 
 const AIM_SCALER: f32 = 0.02;
 
@@ -92,11 +94,9 @@ impl<'s> System<'s> for AimSystem {
                 .create_entity(&entities)
                 .with(bullet_sprite_render.clone())
                 .with(bullet_transform)
-                .with(
-                    TankBullet {
-                        velocity: [gun_x_component * 10.0, gun_y_component * 10.0],
-                    }
-                )
+                .with(TankBullet {
+                    velocity: [gun_x_component * 10.0, gun_y_component * 10.0],
+                })
                 .build();
         }
     }

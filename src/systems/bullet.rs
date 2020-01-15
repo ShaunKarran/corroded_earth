@@ -3,7 +3,7 @@ use amethyst::{
     ecs::{Join, Read, System, WriteStorage},
 };
 
-use crate::game_state::TankBullet;
+use crate::states::player_turn::TankBullet;
 
 const GRAVITY: f32 = -9.81;
 
