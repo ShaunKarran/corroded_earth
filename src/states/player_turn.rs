@@ -70,14 +70,16 @@ impl SimpleState for PlayerTurnState {
 
             // Listen to any key events
             if is_key_down(&event, VirtualKeyCode::Space) {
+                let player = self.player.unwrap();
+
                 // Use the transform of the player as the initial transform of the bullet.
                 let mut bullet_transform = data.world.read_storage::<Transform>()
-                    .get(self.player.unwrap()).expect("failed to get transform for player")
+                    .get(player).expect("failed to get transform for player")
                     .clone();
 
                 // Update the bullets position match the end of the gun barrel.
                 let tanks = data.world.read_storage::<Tank>();
-                let tank = tanks.get(self.player.unwrap()).expect("failed to get tank for player");
+                let tank = tanks.get(player).expect("failed to get tank for player");
                 let gun_x_component = 5.0 * tank.gun_angle.cos();
                 let gun_y_component = 5.0 * tank.gun_angle.sin();
                 bullet_transform.prepend_translation_x(gun_x_component);
