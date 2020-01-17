@@ -1,7 +1,11 @@
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
     core::transform::{components::Parent, Transform},
-    ecs::prelude::{Component, DenseVecStorage},
+    ecs::{
+        Entity,
+        LazyUpdate,
+        prelude::{Component, DenseVecStorage},
+    },
     input::{get_key, is_close_requested, is_key_down, VirtualKeyCode},
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
@@ -23,7 +27,13 @@ pub const GROUND_HEIGHT: f32 = 5.0;
 pub const TANK_HEIGHT: f32 = 5.0;
 // pub const TANK_WIDTH: f32 = 5.0; // Unused for now, might be useful later.
 
-pub struct PlayerTurnState;
+pub struct PlayerTurnState {
+    player: Option<Entity>,
+}
+
+impl Default for PlayerTurnState {
+    fn default() -> Self { PlayerTurnState { player: None } }
+}
 
 impl SimpleState for PlayerTurnState {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
@@ -37,7 +47,7 @@ impl SimpleState for PlayerTurnState {
         let sheet_handle = load_sprites(world);
         world.insert(sheet_handle.clone());
 
-        init_tank(world, sheet_handle.clone());
+        self.player = Some(init_tank(world, sheet_handle.clone()));
 
         world.insert(Game { current_state: CurrentState::PlayerTurn });
     }
@@ -49,7 +59,7 @@ impl SimpleState for PlayerTurnState {
 
     fn handle_event(
         &mut self,
-        mut _data: StateData<'_, GameData<'_, '_>>,
+        data: StateData<'_, GameData<'_, '_>>,
         event: StateEvent,
     ) -> SimpleTrans {
         if let StateEvent::Window(event) = &event {
@@ -60,6 +70,37 @@ impl SimpleState for PlayerTurnState {
 
             // Listen to any key events
             if is_key_down(&event, VirtualKeyCode::Space) {
+                // Use the transform of the player as the initial transform of the bullet.
+                let mut bullet_transform = data.world.read_storage::<Transform>()
+                    .get(self.player.unwrap()).expect("failed to get transform for player")
+                    .clone();
+
+                // Update the bullets position match the end of the gun barrel.
+                let tanks = data.world.read_storage::<Tank>();
+                let tank = tanks.get(self.player.unwrap()).expect("failed to get tank for player");
+                let gun_x_component = 5.0 * tank.gun_angle.cos();
+                let gun_y_component = 5.0 * tank.gun_angle.sin();
+                bullet_transform.prepend_translation_x(gun_x_component);
+                bullet_transform.prepend_translation_y(gun_y_component);
+
+                // Assign the sprite for the bullet.
+                let bullet_sprite_render = SpriteRender {
+                    sprite_sheet: (*data.world.read_resource::<Handle<SpriteSheet>>()).clone(),
+                    sprite_number: 1, // tank gun is the second sprite in the sprite_sheet.
+                };
+
+                // Create the bullet.
+                let lazy_update = data.world.read_resource::<LazyUpdate>();
+                let entities = data.world.entities();
+                lazy_update
+                    .create_entity(&entities)
+                    .with(bullet_sprite_render.clone())
+                    .with(bullet_transform)
+                    .with(TankBullet {
+                        velocity: [gun_x_component * 10.0, gun_y_component * 10.0],
+                    })
+                    .build();
+
                 info!("pushing AITurnState state");
                 return Trans::Push(Box::new(AITurnState));
             }
@@ -145,7 +186,7 @@ fn load_sprites(world: &mut World) -> Handle<SpriteSheet> {
     )
 }
 
-fn init_tank(world: &mut World, sheet_handle: Handle<SpriteSheet>) {
+fn init_tank(world: &mut World, sheet_handle: Handle<SpriteSheet>) -> Entity {
     // Position the tank in a fixed location for now. 10 units left of centre.
     let mut tank_transform = Transform::default();
     tank_transform.set_translation_xyz(
@@ -191,4 +232,6 @@ fn init_tank(world: &mut World, sheet_handle: Handle<SpriteSheet>) {
         }) // Assign the tank as the guns parent so it will inherit transformations.
         .with(gun_transform)
         .build();
+
+    tank_entity
 }

@@ -16,6 +16,10 @@ I think the solution might be handling the fire bullet input in the PlayerTurnSt
 I could also have a state for while the bullet is in flight?
 Maybe both.
 
+I think I need to be more "event based". Not sure exactly what that looks like, but it doesn't make much sense to be handling of some input inside systems.
+For aiming the tank gun, it does make sense. But not for firing.
+Can I do stuff like create the bullet in the event? I'm pretty sure all the resources are available in both events and systems.
+
 # Plan for handling Tanks.
 
 - Have a Tank component.

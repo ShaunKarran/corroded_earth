@@ -15,11 +15,6 @@ mod systems;
 
 use states::PlayerTurnState;
 
-#[derive(Default)]
-pub struct Game {
-    current_state: CurrentState,
-}
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum CurrentState {
     PlayerTurn,
@@ -28,6 +23,16 @@ enum CurrentState {
 
 impl Default for CurrentState {
     fn default() -> Self { CurrentState::PlayerTurn }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum PlayerAction {
+    Shoot,
+}
+
+#[derive(Default)]
+pub struct Game {
+    current_state: CurrentState,
 }
 
 fn main() -> amethyst::Result<()> {
@@ -57,7 +62,7 @@ fn main() -> amethyst::Result<()> {
                 .with_plugin(RenderFlat2D::default()),
         )?;
 
-    let mut game = Application::new(resources, PlayerTurnState, game_data)?;
+    let mut game = Application::new(resources, PlayerTurnState::default(), game_data)?;
     game.run();
 
     Ok(())
