@@ -88,7 +88,7 @@ impl SimpleState for PlayerTurnState {
                 // Assign the sprite for the bullet.
                 let bullet_sprite_render = SpriteRender {
                     sprite_sheet: (*data.world.read_resource::<Handle<SpriteSheet>>()).clone(),
-                    sprite_number: 1, // tank gun is the second sprite in the sprite_sheet.
+                    sprite_number: 2,
                 };
 
                 // Create the bullet.

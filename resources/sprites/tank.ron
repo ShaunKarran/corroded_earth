@@ -15,5 +15,12 @@
             height: 1,
             offsets: Some((-2.5, 0.0)), // Offset to the centre of the sprite is the left end of it.
         ),
+        (
+            x: 0,
+            y: 3,
+            width: 1,
+            height: 1,
+            offsets: Some((0.0, -0.5)),
+        ),
     ]
 )
