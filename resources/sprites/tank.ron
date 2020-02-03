@@ -1,4 +1,4 @@
-(
+List((
     texture_width: 5,
     texture_height: 5,
     sprites: [
@@ -23,4 +23,4 @@
             offsets: Some((0.0, -0.5)),
         ),
     ]
-)
+))

@@ -3,7 +3,7 @@ use amethyst::{
     ecs::{Join, Read, System, WriteStorage},
 };
 
-use crate::states::player_turn::{GROUND_HEIGHT, TankBullet};
+use crate::states::game::{TankBullet, GROUND_HEIGHT};
 
 const GRAVITY: f32 = -9.81;
 
@@ -30,11 +30,11 @@ impl<'s> System<'s> for BulletSystem {
             // Update the bullets position based on it's velocity, but not allowing values below the ground.
             transform.set_translation_x(
                 (transform.translation().x + (bullet.velocity[0] * time.delta_seconds()))
-                    .max(GROUND_HEIGHT)
+                    .max(GROUND_HEIGHT),
             );
             transform.set_translation_y(
                 (transform.translation().y + (bullet.velocity[1] * time.delta_seconds()))
-                    .max(GROUND_HEIGHT)
+                    .max(GROUND_HEIGHT),
             );
 
             // If the bullet has hit the ground it stops moving.

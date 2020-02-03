@@ -13,27 +13,7 @@ use amethyst::{
 mod states;
 mod systems;
 
-use states::PlayerTurnState;
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-enum CurrentState {
-    PlayerTurn,
-    AITurn,
-}
-
-impl Default for CurrentState {
-    fn default() -> Self { CurrentState::PlayerTurn }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum PlayerAction {
-    Shoot,
-}
-
-#[derive(Default)]
-pub struct Game {
-    current_state: CurrentState,
-}
+use states::GameState;
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
@@ -57,12 +37,13 @@ fn main() -> amethyst::Result<()> {
             RenderingBundle::<DefaultBackend>::new()
                 .with_plugin(
                     RenderToWindow::from_config_path(display_config)
+                        .unwrap()
                         .with_clear([0.34, 0.36, 0.52, 1.0]),
                 )
                 .with_plugin(RenderFlat2D::default()),
         )?;
 
-    let mut game = Application::new(resources, PlayerTurnState::default(), game_data)?;
+    let mut game = Application::new(resources, GameState, game_data)?;
     game.run();
 
     Ok(())

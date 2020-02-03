@@ -1,10 +1,10 @@
 # Game States
 
-                            |-----------|-------> EndGame (Not yet) -> MainMenu (Not yet)
-                            |           |
-Main Menu (Not yet) -> PlayerTurn -> AITurn(s)
-                            ^           |
-                            |-----------|
+                            |---------> PlayerTurn -| 
+                            |               ^       |
+Main Menu (Not yet) -> GameState            |       |--- > MainMenu (Not yet)
+                                            v       |
+                                          AITurn ---|
 
 ## Systems based on state
 I expected something to be able to activate/deactivate systems based on the current state. That doesn't seem to be the case.

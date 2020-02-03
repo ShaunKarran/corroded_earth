@@ -1,5 +1,3 @@
-pub use self::ai_turn::AITurnState;
-pub use self::player_turn::PlayerTurnState;
+pub use self::game::GameState;
 
-pub mod ai_turn;
-pub mod player_turn;
+pub mod game;
